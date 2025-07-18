@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>City Explorer</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #83a4d4, #b6fbff);
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #2c3e50;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    .results {
+      margin-top: 30px;
+    }
+    p {
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>City Explorer</h1>
+    <input type="text" id="cityInput" placeholder="Enter a city name" />
+    <button onclick="exploreCity()">Explore</button>
+    <div class="results" id="results"></div>
+  </div>
+
+  <script>
+    async function exploreCity() {
+      const city = document.getElementById("cityInput").value.trim().toLowerCase();
+      const results = document.getElementById("results");
+
+      if (!city) {
+        results.innerHTML = "<p>Please enter a city name.</p>";
+        return;
+      }
+
+      results.innerHTML = "<p>Loading...</p>";
+
+      try {
+        const res = await fetch(`/api/city?name=${encodeURIComponent(city)}`);
+        const data = await res.json();
+
+        if (data.error) {
+          results.innerHTML = `<p>${data.error}</p>`;
+          return;
+        }
+
+        results.innerHTML = `
+          <h2>${data.name}</h2>
+          <p><strong>Country:</strong> ${data.country}</p>
+          <p><strong>Region:</strong> ${data.region}</p>
+          <p><strong>Population:</strong> ${data.population}</p>
+          <p><strong>Timezone:</strong> ${data.timezone}</p>
+        `;
+      } catch (error) {
+        results.innerHTML = "<p>Failed to fetch city details. Try again later.</p>";
+        console.error(error);
+      }
+    }
+
+    document.getElementById("cityInput").addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        exploreCity();
+      }
+    });
+  </script>
+</body>
+</html>
